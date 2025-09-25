@@ -25,19 +25,19 @@ jobs:
           POSTGRES_PASSWORD: test
           POSTGRES_DB: testdb
         ports:
-          - 5432:5432
+          - 5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 10
+          --health-retries 5
 
       redis:
         image: redis:7-alpine
         ports:
           - 6379:6379
         options: >-
-          --health-cmd \"redis-cli ping\"
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -51,7 +51,7 @@ jobs:
       - name: Wait for Postgres to be ready
         run: |
           until pg_isready -h localhost -p 5432 -U test; do
-            echo \"Waiting for Postgres...\" 
+            echo \"Waiting for Postgres...\"
             sleep 5
           done
         env:
@@ -76,7 +76,7 @@ jobs:
 
       - name: Run Tests
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
           SPRING_DATASOURCE_USERNAME: test
           SPRING_DATASOURCE_PASSWORD: test
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/testdb
         run: mvn test
