@@ -7,55 +7,19 @@
 # documentation.
 
 name: ci.yml
+
 on:
   push:
-    branches: [master, develop]
+    branches: [main, develop]
   pull_request:
-    branches: [master, develop]
+    branches: [main, develop]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: testdb
-        ports:
-          - 5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install PostgreSQL Client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
-
-      - name: Wait for Postgres to be ready
-        run: |
-          until pg_isready -h localhost -p 5432 -U test; do
-            echo \"Waiting for Postgres...\"
-            sleep 5
-          done
-        env:
-          PGPASSWORD: test
 
       - name: Set up JDK 21
         uses: actions/setup-java@v3
@@ -63,20 +27,31 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Build app jar
+        run: ./mvnw clean package -DskipTests
 
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
+      - name: Build docker images
+        run: docker-compose build
 
-      - name: Run Tests
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for Postgres
+        run: |
+          until docker exec $(docker ps -qf \"name=consilium-postgres\") pg_isready -U consilium -d consilium-db; do
+            echo \"Waiting for postgres...\"
+            sleep 5
+          done
+
+      - name: Run tests
         env:
-          SPRING_DATASOURCE_USERNAME: test
-          SPRING_DATASOURCE_PASSWORD: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/testdb
-        run: mvn test
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/consilium-db
+          SPRING_DATASOURCE_USERNAME: consilium
+          SPRING_DATASOURCE_PASSWORD: consilium_password
+          SPRING_REDIS_HOST: localhost
+          SPRING_REDIS_PORT: 6379
+        run: ./mvnw test
+
+      - name: Shutdown Docker Compose
+        run: docker-compose down
+
