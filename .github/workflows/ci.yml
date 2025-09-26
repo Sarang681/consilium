@@ -8,9 +8,23 @@ on:
     branches: [master]
 
 jobs:
-  build:
-    name: 🛠️ Build & Package
+  runner-job:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: testpassword
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - name: 📥 Checkout repository
@@ -25,3 +39,10 @@ jobs:
 
       - name: 📦 Build with Maven
         run: mvn clean package -DskipTests
+
+      - name: Run Tests
+        run: mvn test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/testdb
+          SPRING_DATASOURCE_USERNAME: test
+          SPRING_DATASOURCE_PASSWORD: testpassword
