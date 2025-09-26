@@ -45,8 +45,8 @@ jobs:
             sleep 2
           done
 
-      - name: 📦 Build with Maven (skip tests)
-        run: mvn clean package -DskipTests
+      - name: 📦 Build with Maven (skip tests) and run Checkstyle and Spotbugs
+        run: mvn clean verify -DskipTests
 
       - name: 🧪 Run Test Suite
         run: mvn test
