@@ -1,5 +1,6 @@
 package com.consilium.consiliumbackend.auth.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<RegisterUserResponse>> registerNewUser(@RequestBody RegisterUserRequest registerUserRequest) {
+    public ResponseEntity<ApiResponse<RegisterUserResponse>> registerNewUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         return userManagementService.registerNewUser(registerUserRequest);
     }
 

@@ -11,7 +11,7 @@ import java.util.List;
 public class ApiResponse<T> {
     private String message;
     private String status;
-    private List<String> errors;
+    private List<Error> errors;
     private LocalDateTime timestamp;
     private T data;
 }
