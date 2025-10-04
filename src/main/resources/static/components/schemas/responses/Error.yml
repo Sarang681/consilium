@@ -1,0 +1,8 @@
+type: object
+properties:
+  key:
+    type: string
+    description: "Error field or code identifying the error type"
+  message:
+    type: string
+    description: "Human-readable description of the error"

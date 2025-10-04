@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: Consilium - Collaborative Task and Project Management API
+  description: |
+    Consilium API provides a streamlined, developer-friendly interface for managing projects, tasks, users, and real-time collaboration.
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080'
+    description: Development Environment
+tags:
+  - name: Authentication
+    description: Endpoints for user authentication and registration
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      description: Creates a new user account with the provided registration details.
+      operationId: registerNewUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRequest"
+      responses:
+        200:
+          description: User registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterUserResponse"
+              example:
+                status: "success"
+                message: "User registered successfully"
+                timestamp: "2025-10-02T19:21:00"
+                data:
+                  username: "johndoe123"
+                  id: 1024
+                errors: null
+        400:
+          description: Invalid input, validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterUserResponse"
+              example:
+                status: error
+                message: Validation failed for the request
+                timestamp: "2025-10-02T19:21:00"
+                errors:
+                  - key: username
+                    message: Username must be between 6 and 64 characters long
+                  - key: password
+                    message: Password must be between 8 and 16 characters
+                  - key: email
+                    message: Email should be valid
+                  - key: firstName
+                    message: First Name cannot be blank
+                data: null
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterUserResponse"
+              example:
+                status: error
+                message: Unexpected error occurred
+                timestamp: "2025-10-02T19:21:00"
+                errors: null
+                data: null
+components:
+  schemas:
+    ApiResponse:
+      $ref: "/components/schemas/responses/ApiResponse.yml"
+    Error:
+      $ref: "/components/schemas/responses/Error.yml"
+    RegisterUserRequest:
+      $ref: "/components/schemas/requests/RegisterUserRequest.yml"
+    RegisterUser:
+      $ref: "/components/schemas/responses/RegisterUser.yml"
+    RegisterUserResponse:
+      $ref: "/components/schemas/responses/RegisterUserResponse.yml"
+

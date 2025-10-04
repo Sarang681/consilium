@@ -1,0 +1,6 @@
+allOf:
+  - $ref: "./ApiResponse.yml"
+  - type: object
+    properties:
+      data:
+        $ref: "./RegisterUser.yml"

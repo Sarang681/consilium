@@ -1,0 +1,11 @@
+type: object
+properties:
+  username:
+    type: string
+    description: Registered username for the new account
+    example: johndoe123
+  id:
+    type: integer
+    description: Unique identifier of the newly registered user
+    example: 1024
+    format: int64

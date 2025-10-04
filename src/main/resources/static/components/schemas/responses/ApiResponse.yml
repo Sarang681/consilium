@@ -1,0 +1,17 @@
+type: object
+properties:
+  message:
+    type: string
+    description: "Informational message about the response"
+  status:
+    type: string
+    description: "Status of the operation (e.g., success, failure)"
+  errors:
+    type: array
+    items:
+      $ref: "./Error.yml"
+    description: "Error details, if any"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Timestamp of the response"
